@@ -11,9 +11,38 @@
 
 
 def index():
+    response.flash = T("Welcome to Streamline!")
 
-    response.flash = T("Welcome to web2py!")
-    return dict()
+    total_shipment = db().select(db.shipment.ALL)
+
+    return dict(total_shipment=total_shipment)
+
+
+def new_shipment():
+    response.flash = T("Total shipment!")
+
+    form = SQLFORM.factory(
+        Field('date_shipment', type="date", requires=IS_NOT_EMPTY(error_message=T('Cannot be empty'))),
+        Field('volume_transported', type="double", requires=IS_NOT_EMPTY(error_message=T('Cannot be empty'))),
+        Field('distance_ship', type="double", requires=IS_NOT_EMPTY(error_message=T('Cannot be empty'))),
+        Field('minimum_distance_ship', type="double", requires=IS_NOT_EMPTY(error_message=T('Cannot be empty'))),
+        Field('value_meter_km', type="double", requires=IS_NOT_EMPTY(error_message=T('Cannot be empty'))),
+        )
+
+    if form.process().accepted:
+
+        id = db.shipment.insert(
+            volume_transported = form.vars.volume_transported,
+            distance_ship = form.vars.distance_ship,
+            minimum_distance_ship = form.vars.minimum_distance_ship,
+            value_meter_km = form.vars.value_meter_km,
+            )
+        # response.flash = T("form accepted")
+        redirect(URL("index"))
+    elif form.errors:
+        response.flash = T("form has errors")
+
+    return dict(form=form)
 
 
 def user():
